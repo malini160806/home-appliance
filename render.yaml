@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: home-appliance-tracker
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: productionservices:
+  - type: web
+    name: home-appliance-tracker
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
