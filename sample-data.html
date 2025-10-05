@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Appliance Tracker - Sample Data</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .appliance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .appliance-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        .appliance-card:hover {
+            transform: translateY(-5px);
+        }
+        .appliance-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .appliance-details {
+            margin-bottom: 15px;
+        }
+        .detail-item {
+            margin-bottom: 8px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #7f8c8d;
+        }
+        .contacts, .tasks {
+            margin-top: 20px;
+        }
+        .section-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        .contact-item, .task-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Home Appliance Tracker</h1>
+        <p>Sample Data Showcase</p>
+    </div>
+    
+    <div class="appliance-grid" id="applianceContainer">
+        <!-- Appliances will be populated here by JavaScript -->
+    </div>
+
+    <script>
+        // Fetch appliances from the API
+        fetch('http://localhost:5000/api/appliances')
+            .then(response => response.json())
+            .then(appliances => {
+                const container = document.getElementById('applianceContainer');
+                
+                appliances.forEach(appliance => {
+                    const card = document.createElement('div');
+                    card.className = 'appliance-card';
+                    
+                    // Format warranty expiration
+                    const purchaseDate = new Date(appliance.purchase_date);
+                    const warrantyEndDate = new Date(purchaseDate);
+                    warrantyEndDate.setFullYear(purchaseDate.getFullYear() + appliance.warranty_years);
+                    
+                    card.innerHTML = `
+                        <div class="appliance-name">${appliance.name}</div>
+                        <div class="appliance-details">
+                            <div class="detail-item"><span class="detail-label">Brand:</span> ${appliance.brand}</div>
+                            <div class="detail-item"><span class="detail-label">Model:</span> ${appliance.model}</div>
+                            <div class="detail-item"><span class="detail-label">Purchase Date:</span> ${appliance.purchase_date}</div>
+                            <div class="detail-item"><span class="detail-label">Warranty:</span> ${appliance.warranty_years} years (expires ${warrantyEndDate.toISOString().split('T')[0]})</div>
+                            <div class="detail-item"><span class="detail-label">Serial Number:</span> ${appliance.serial_number || 'N/A'}</div>
+                            <div class="detail-item"><span class="detail-label">Purchase Location:</span> ${appliance.purchase_location || 'N/A'}</div>
+                        </div>
+                        
+                        <div class="contacts">
+                            <div class="section-title">Service Contacts</div>
+                            ${appliance.service_contacts && appliance.service_contacts.length > 0 ? 
+                              appliance.service_contacts.map(contact => `
+                                <div class="contact-item">
+                                    <div><strong>${contact.name}</strong></div>
+                                    ${contact.phone ? `<div>Phone: ${contact.phone}</div>` : ''}
+                                    ${contact.email ? `<div>Email: ${contact.email}</div>` : ''}
+                                </div>
+                              `).join('') : 
+                              '<div>No service contacts</div>'}
+                        </div>
+                        
+                        <div class="tasks">
+                            <div class="section-title">Maintenance Tasks</div>
+                            ${appliance.maintenance_tasks && appliance.maintenance_tasks.length > 0 ? 
+                              appliance.maintenance_tasks.map(task => `
+                                <div class="task-item">
+                                    <div><strong>${task.name}</strong></div>
+                                    <div>Date: ${task.date}</div>
+                                    ${task.frequency ? `<div>Frequency: ${task.frequency}</div>` : ''}
+                                </div>
+                              `).join('') : 
+                              '<div>No maintenance tasks</div>'}
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching appliances:', error);
+                document.getElementById('applianceContainer').innerHTML = 
+                    '<div class="error">Error loading appliance data. Please make sure the server is running.</div>';
+            });
+    </script>
+</body>
+</html>
