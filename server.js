@@ -3,7 +3,7 @@ import mysql from 'mysql2'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'url'
-import { dirname } from 'path'
+import { dirname, join } from 'path'
 import applianceRoutes from './routes/applianceRoutes.js'
 
 // Set up __dirname for ES modules
@@ -18,6 +18,16 @@ const port = process.env.PORT || 5000
 // Middleware
 app.use(cors())
 app.use(express.json())
+
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(join(__dirname, 'dist')))
+  
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(join(__dirname, 'dist', 'index.html'))
+  })
+}
 
 // Create MySQL connection
 let db
