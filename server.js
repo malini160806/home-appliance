@@ -19,16 +19,6 @@ const port = process.env.PORT || 5000
 app.use(cors())
 app.use(express.json())
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(join(__dirname, 'dist')))
-  
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    res.sendFile(join(__dirname, 'dist', 'index.html'))
-  })
-}
-
 // Create MySQL connection
 let db
 
@@ -144,6 +134,22 @@ app.set('db', db)
 
 // Use routes
 app.use('/api', applianceRoutes)
+
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  const staticPath = join(__dirname, 'dist')
+  console.log('Serving static files from:', staticPath)
+  app.use(express.static(staticPath))
+  
+  // Serve index.html for all non-API routes
+  app.get('/', (req, res) => {
+    res.sendFile(join(staticPath, 'index.html'))
+  })
+  
+  app.get('/index.html', (req, res) => {
+    res.sendFile(join(staticPath, 'index.html'))
+  })
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
