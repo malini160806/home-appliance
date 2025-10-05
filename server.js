@@ -139,14 +139,13 @@ app.use('/api', applianceRoutes)
 if (process.env.NODE_ENV === 'production') {
   const staticPath = join(__dirname, 'dist')
   console.log('Serving static files from:', staticPath)
+  
+  // Serve static files
   app.use(express.static(staticPath))
   
   // Serve index.html for all non-API routes
-  app.get('/', (req, res) => {
-    res.sendFile(join(staticPath, 'index.html'))
-  })
-  
-  app.get('/index.html', (req, res) => {
+  app.get(/^\/(?!api).*/, (req, res) => {
+    console.log('Serving index.html for route:', req.path)
     res.sendFile(join(staticPath, 'index.html'))
   })
 }
