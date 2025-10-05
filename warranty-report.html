@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Appliance Tracker - Warranty Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c3e50, #1a2530);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card.active {
+            border-top: 5px solid #4CAF50;
+        }
+        
+        .stat-card.expiring {
+            border-top: 5px solid #ff9800;
+        }
+        
+        .stat-card.expired {
+            border-top: 5px solid #f44336;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            color: #666;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin: 2rem 0 1rem;
+            color: #2c3e50;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .appliance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 2rem;
+        }
+        
+        .appliance-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .appliance-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .appliance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .appliance-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .warranty-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .badge-active {
+            background-color: #e8f5e9;
+            color: #4CAF50;
+        }
+        
+        .badge-expiring {
+            background-color: #fff3e0;
+            color: #ff9800;
+        }
+        
+        .badge-expired {
+            background-color: #ffebee;
+            color: #f44336;
+        }
+        
+        .appliance-details {
+            margin-bottom: 1rem;
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            width: 120px;
+            color: #666;
+        }
+        
+        .detail-value {
+            flex: 1;
+        }
+        
+        .warranty-info {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .warranty-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .warranty-label {
+            font-weight: 600;
+        }
+        
+        .days-until-expiry {
+            font-weight: bold;
+        }
+        
+        .positive {
+            color: #4CAF50;
+        }
+        
+        .warning {
+            color: #ff9800;
+        }
+        
+        .negative {
+            color: #f44336;
+        }
+        
+        .contacts-section, .tasks-section {
+            margin-top: 1.5rem;
+        }
+        
+        .section-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: #3498db;
+        }
+        
+        .contact-item, .task-item {
+            background: #f8f9fa;
+            padding: 0.8rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #777;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .appliance-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Home Appliance Tracker</h1>
+            <div class="subtitle">Comprehensive Warranty Report</div>
+        </header>
+        
+        <div class="stats-container">
+            <div class="stat-card active">
+                <div class="stat-number" id="activeCount">0</div>
+                <div class="stat-label">Active Warranties</div>
+            </div>
+            <div class="stat-card expiring">
+                <div class="stat-number" id="expiringCount">0</div>
+                <div class="stat-label">Expiring Soon</div>
+            </div>
+            <div class="stat-card expired">
+                <div class="stat-number" id="expiredCount">0</div>
+                <div class="stat-label">Expired Warranties</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalCount">0</div>
+                <div class="stat-label">Total Appliances</div>
+            </div>
+        </div>
+        
+        <h2 class="section-title">Active Warranties</h2>
+        <div class="appliance-grid" id="activeAppliances">
+            <!-- Active appliances will be populated here -->
+        </div>
+        
+        <h2 class="section-title">Expiring Soon (Within 30 Days)</h2>
+        <div class="appliance-grid" id="expiringAppliances">
+            <!-- Expiring soon appliances will be populated here -->
+        </div>
+        
+        <h2 class="section-title">Expired Warranties</h2>
+        <div class="appliance-grid" id="expiredAppliances">
+            <!-- Expired appliances will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        // Fetch appliances from the API
+        fetch('http://localhost:5000/api/appliances')
+            .then(response => response.json())
+            .then(appliances => {
+                // Initialize counters
+                let activeCount = 0;
+                let expiringCount = 0;
+                let expiredCount = 0;
+                
+                // Get container elements
+                const activeContainer = document.getElementById('activeAppliances');
+                const expiringContainer = document.getElementById('expiringAppliances');
+                const expiredContainer = document.getElementById('expiredAppliances');
+                
+                // Clear containers
+                activeContainer.innerHTML = '';
+                expiringContainer.innerHTML = '';
+                expiredContainer.innerHTML = '';
+                
+                // Process each appliance
+                appliances.forEach(appliance => {
+                    // Calculate warranty information
+                    const purchaseDate = new Date(appliance.purchase_date);
+                    const warrantyEndDate = new Date(purchaseDate);
+                    warrantyEndDate.setFullYear(purchaseDate.getFullYear() + appliance.warranty_years);
+                    const today = new Date();
+                    const daysUntilExpiry = Math.ceil((warrantyEndDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    // Determine warranty status
+                    let status, container;
+                    if (warrantyEndDate > today) {
+                        if (daysUntilExpiry <= 30) {
+                            status = 'expiring';
+                            container = expiringContainer;
+                            expiringCount++;
+                        } else {
+                            status = 'active';
+                            container = activeContainer;
+                            activeCount++;
+                        }
+                    } else {
+                        status = 'expired';
+                        container = expiredContainer;
+                        expiredCount++;
+                    }
+                    
+                    // Create appliance card
+                    const card = document.createElement('div');
+                    card.className = 'appliance-card';
+                    
+                    // Format dates
+                    const purchaseDateFormatted = purchaseDate.toLocaleDateString();
+                    const warrantyEndDateFormatted = warrantyEndDate.toLocaleDateString();
+                    
+                    // Determine badge class and text
+                    let badgeClass, badgeText;
+                    if (status === 'active') {
+                        badgeClass = 'badge-active';
+                        badgeText = 'Active';
+                    } else if (status === 'expiring') {
+                        badgeClass = 'badge-expiring';
+                        badgeText = 'Expiring Soon';
+                    } else {
+                        badgeClass = 'badge-expired';
+                        badgeText = 'Expired';
+                    }
+                    
+                    // Format days until expiry text
+                    let daysText;
+                    if (status === 'active') {
+                        daysText = `${daysUntilExpiry} days remaining`;
+                    } else if (status === 'expiring') {
+                        if (daysUntilExpiry === 0) {
+                            daysText = 'Expires today';
+                        } else if (daysUntilExpiry === 1) {
+                            daysText = 'Expires tomorrow';
+                        } else {
+                            daysText = `Expires in ${daysUntilExpiry} days`;
+                        }
+                    } else {
+                        daysText = `${Math.abs(daysUntilExpiry)} days ago`;
+                    }
+                    
+                    // Determine days text class
+                    let daysClass;
+                    if (status === 'active') {
+                        daysClass = 'positive';
+                    } else if (status === 'expiring') {
+                        daysClass = 'warning';
+                    } else {
+                        daysClass = 'negative';
+                    }
+                    
+                    card.innerHTML = `
+                        <div class="appliance-header">
+                            <div class="appliance-name">${appliance.name}</div>
+                            <div class="warranty-badge ${badgeClass}">${badgeText}</div>
+                        </div>
+                        
+                        <div class="appliance-details">
+                            <div class="detail-row">
+                                <div class="detail-label">Brand:</div>
+                                <div class="detail-value">${appliance.brand}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Model:</div>
+                                <div class="detail-value">${appliance.model}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Serial #:</div>
+                                <div class="detail-value">${appliance.serial_number || 'N/A'}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="warranty-info">
+                            <div class="warranty-row">
+                                <div class="warranty-label">Purchase Date:</div>
+                                <div>${purchaseDateFormatted}</div>
+                            </div>
+                            <div class="warranty-row">
+                                <div class="warranty-label">Warranty Period:</div>
+                                <div>${appliance.warranty_years} year${appliance.warranty_years !== 1 ? 's' : ''}</div>
+                            </div>
+                            <div class="warranty-row">
+                                <div class="warranty-label">Warranty End:</div>
+                                <div>${warrantyEndDateFormatted}</div>
+                            </div>
+                            <div class="warranty-row">
+                                <div class="warranty-label">Status:</div>
+                                <div class="${daysClass}">${daysText}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="contacts-section">
+                            <div class="section-header">Service Contacts</div>
+                            ${appliance.service_contacts && appliance.service_contacts.length > 0 ? 
+                              appliance.service_contacts.map(contact => `
+                                <div class="contact-item">
+                                    <div><strong>${contact.name}</strong></div>
+                                    ${contact.phone ? `<div>📞 ${contact.phone}</div>` : ''}
+                                    ${contact.email ? `<div>✉️ ${contact.email}</div>` : ''}
+                                </div>
+                              `).join('') : 
+                              '<div class="empty-state">No service contacts</div>'}
+                        </div>
+                        
+                        <div class="tasks-section">
+                            <div class="section-header">Maintenance Tasks</div>
+                            ${appliance.maintenance_tasks && appliance.maintenance_tasks.length > 0 ? 
+                              appliance.maintenance_tasks.map(task => `
+                                <div class="task-item">
+                                    <div><strong>${task.name}</strong></div>
+                                    <div>📅 Due: ${new Date(task.date).toLocaleDateString()}</div>
+                                    ${task.frequency ? `<div>🔄 ${task.frequency}</div>` : ''}
+                                </div>
+                              `).join('') : 
+                              '<div class="empty-state">No maintenance tasks</div>'}
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+                
+                // Update counters
+                document.getElementById('activeCount').textContent = activeCount;
+                document.getElementById('expiringCount').textContent = expiringCount;
+                document.getElementById('expiredCount').textContent = expiredCount;
+                document.getElementById('totalCount').textContent = appliances.length;
+                
+                // Show message if no appliances in a category
+                if (activeCount === 0) {
+                    activeContainer.innerHTML = '<div class="empty-state">No appliances with active warranties</div>';
+                }
+                
+                if (expiringCount === 0) {
+                    expiringContainer.innerHTML = '<div class="empty-state">No appliances with warranties expiring soon</div>';
+                }
+                
+                if (expiredCount === 0) {
+                    expiredContainer.innerHTML = '<div class="empty-state">No appliances with expired warranties</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching appliances:', error);
+                document.body.innerHTML = `
+                    <div class="container">
+                        <div style="text-align: center; padding: 2rem; color: #f44336;">
+                            <h2>Error Loading Data</h2>
+                            <p>Please make sure the Home Appliance Tracker server is running.</p>
+                            <p>Error: ${error.message}</p>
+                        </div>
+                    </div>
+                `;
+            });
+    </script>
+</body>
+</html>
